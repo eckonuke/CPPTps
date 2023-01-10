@@ -19,4 +19,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEnemyState Estate;
 	
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_DieEnd();
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_EnemyAttack();
 };
