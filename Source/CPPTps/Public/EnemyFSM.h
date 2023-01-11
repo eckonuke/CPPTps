@@ -58,6 +58,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	class AAIController* ai;
 
+	//Navigation System
+	//랜덤한 위치
+	UPROPERTY(EditAnywhere)
+	FVector randPos;
+
 	//delayTime
 	float idleDelayTime = 2;
 	//currentTime
@@ -90,7 +95,7 @@ public:
 	void UpdateDamaged();
 	//죽음상태
 	void UpdateDie();
-	//리턴
+	//원래 위치로 되돌아간다
 	void UpdateReturnPos();
 	//상태변경시 한번만 호출 되는 함수
 	void ChangeState(EEnemyState oldState);
@@ -100,4 +105,6 @@ public:
 	void ReceiveDamage();
 	//적이 플레이어를 볼수 있냐 없냐
 	bool IsTraceable();
+	//해당 위치까지 도착하면 상태를 Idle로 상태 전환
+	void MoveToPos(FVector pos);
 };

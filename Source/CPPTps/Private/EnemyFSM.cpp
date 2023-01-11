@@ -12,6 +12,7 @@
 #include "EnemyAnim.h"
 #include <AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h>
 #include <AIModule/Classes/AIController.h>
+#include <NavigationSystem.h>
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -85,6 +86,15 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 }
 //대기상태
 void UEnemyFSM::UpdateIdle() {
+	if (IsTraceable()) {
+		ChangeState(EEnemyState::Move);
+	}
+	else {
+		//idledelaytime 만큼 기다렸다가 move 상태로 전환
+		if (UpdateTime(idleDelayTime)) {
+			ChangeState(EEnemyState::Move);
+		}
+	}
 	//시간을 흐르게 한다
 	//currTime += GetWorld()->GetDeltaSeconds();
 	//2초가 지나면
@@ -93,9 +103,6 @@ void UEnemyFSM::UpdateIdle() {
 	//	ChangeState(EEnemyState::Move);
 	//	currTime = 0;
 	//}
-	if (IsTraceable()) {
-		ChangeState(EEnemyState::Move);
-	}
 }
 
 //이동상태
@@ -104,22 +111,24 @@ void UEnemyFSM::UpdateMove() {
 	FVector direction = target->GetActorLocation() - me->GetActorLocation();
 	//처음위치, 나의 현재 위치의 거리
 	float distance = FVector::Distance(originPos, me->GetActorLocation());
-
-	//만약에 distance가 moveRange보다 커지면 (움직일 수 있는 반경을 넘어갔다면)
 	if (distance > moveRange) {
 		//상태를 ReturnPos 로 변경
 		ChangeState(EEnemyState::ReturnPos);
 	}
-	//만약에 target - me 거리가 공격범위보다 작으면
-	else if (direction.Length() < attackRange) {
-		//상태를 Attack으로 변경
-		ChangeState(EEnemyState::Attack);
+	else if (IsTraceable()) {
+		if (direction.Length() < attackRange) {
+			//상태를 Attack으로 변경
+			ChangeState(EEnemyState::Attack);
+		}
+		else {
+			//ai 를 이용해서 목적지까지 이동하고 싶다
+			ai->MoveToLocation(target->GetActorLocation());
+		}
 	}
-	else {//만약에 범위에 없다면 direction방향으로 이동한다
-		//Enemy에게 방향을 설정 해준다
-		//me->AddMovementInput(direction.GetSafeNormal());
-		//ai 를 이용해서 목적지까지 이동하고 싶다
-		ai->MoveToLocation(target->GetActorLocation());
+	else {//시야에 들어오지 않았다면
+		//랜덤한 위치로 도착한 후 Idle 상태로 전환
+		MoveToPos(randPos);
+
 	}
 }
 //공격상태
@@ -164,7 +173,7 @@ void UEnemyFSM::ReceiveDamage() {
 //죽음상태
 void UEnemyFSM::UpdateDie() {
 	//만약에 bDieMove가 false 라면 함수를 나가라
-	if(!bDieMove) return;
+	if (!bDieMove) return;
 	//아래로 내려가는 위치를 구한다
 	FVector fall = me->GetActorLocation() + FVector::DownVector * dieSpeed * GetWorld()->DeltaTimeSeconds;
 	if (fall.Z < -200) {
@@ -206,6 +215,15 @@ void UEnemyFSM::ChangeState(EEnemyState oldState) {
 	ai->StopMovement();
 	switch (currState)
 	{
+	case EEnemyState::Move:
+	{
+		//네비게이션 시스템 가져오자
+		UNavigationSystemV1* ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+		//랜덤한 위치를 얻어오자
+		FNavLocation loc;
+		ns->GetRandomReachablePointInRadius(originPos, 1000, loc);
+		randPos = loc.Location;
+	}
 	case EEnemyState::Attack:
 		//currTime = attackDelayTime;
 		break;
@@ -255,14 +273,7 @@ bool UEnemyFSM::IsTraceable() {
 
 //원래 위치로 돌아간다
 void UEnemyFSM::UpdateReturnPos() {
-	//목적지로 이동하자
-	EPathFollowingRequestResult::Type result = ai->MoveToLocation(originPos);
-	//만약에 목적지에 도착했다면
-	if (result == EPathFollowingRequestResult::AlreadyAtGoal) {
-		//Idle 상태로 전환
-		ChangeState(EEnemyState::Idle);
-	}
-
+	MoveToPos(originPos);
 	////1. 나 ----> 처음 위치를 향하는 방향을 구한다
 	//FVector dir = originPos - me->GetActorLocation();
 	////2. 만약에 나 --- 처음위치의 거리가 10보다 작으면 
@@ -274,4 +285,14 @@ void UEnemyFSM::UpdateReturnPos() {
 	//	//4. 그렇지 않으면 계속 이동
 	//	me->AddMovementInput(dir.GetSafeNormal());
 	//}
+}
+
+void UEnemyFSM::MoveToPos(FVector pos) {
+	//목적지로 이동하자
+	EPathFollowingRequestResult::Type result = ai->MoveToLocation(pos);
+	//만약에 목적지에 도착했다면
+	if (result == EPathFollowingRequestResult::AlreadyAtGoal) {
+		//Idle 상태로 전환
+		ChangeState(EEnemyState::Idle);
+	}
 }
