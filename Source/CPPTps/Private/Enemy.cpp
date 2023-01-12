@@ -61,3 +61,25 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AEnemy::SetActive(bool bActive) {
+	//활성화
+	if (bActive) {
+		//충돌 활성
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//생성 위치 재설정
+		fsm->originPos = GetActorLocation();
+	}
+	//비활성화
+	else {
+		//충돌 비활성 설정
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	//메쉬를 비활성화
+	GetMesh()->SetActive(bActive);
+	//안보이게 설정
+	GetMesh()->SetVisibility(bActive);
+	//Character Movement 활성 / 비활성
+	GetCharacterMovement()->SetActive(bActive);
+	//FSM 활성 / 비활성
+	fsm->SetActive(bActive);
+}

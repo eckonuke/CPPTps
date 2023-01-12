@@ -30,4 +30,7 @@ public:
 	class UEnemyFSM* fsm;
 	UPROPERTY(EditAnywhere)
 	float health = 5;
+
+	//enemy를 활성/비황성 하는 기능
+	void SetActive(bool bActive);
 };

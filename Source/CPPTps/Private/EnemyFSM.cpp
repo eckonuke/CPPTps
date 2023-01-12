@@ -13,6 +13,7 @@
 #include <AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h>
 #include <AIModule/Classes/AIController.h>
 #include <NavigationSystem.h>
+#include "EnemyManager.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -20,6 +21,10 @@ UEnemyFSM::UEnemyFSM()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	//SetActive를 활성화 설정
+	bAutoActivate = true;
+
 	ConstructorHelpers::FObjectFinder<UAnimMontage> tempMontage(TEXT("AnimMontage'/Game/Blueprints/AMT_EnemyDamage.AMT_EnemyDamage'"));
 	if (tempMontage.Succeeded()) {
 		damageMontage = tempMontage.Object;
@@ -177,7 +182,22 @@ void UEnemyFSM::UpdateDie() {
 	//아래로 내려가는 위치를 구한다
 	FVector fall = me->GetActorLocation() + FVector::DownVector * dieSpeed * GetWorld()->DeltaTimeSeconds;
 	if (fall.Z < -200) {
-		me->Destroy(true);
+		//me->Destroy(true);
+		//죽으면 적을 비활성화 하자
+		me->SetActive(false);
+		//EnemyManager 찾자
+		AActor* actor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyManager::StaticClass());
+		AEnemyManager* enemManager = Cast<AEnemyManager>(actor);
+		//찾은 놈에서 enemyArray에 나를 다시 담자
+		enemManager->enemyArray.Add(me);
+		//HP를 다시 원상복구
+		currHealth = maxHealth;
+		//상태를 Idle
+		ChangeState(EEnemyState::Idle);
+		//몽타주를 멈춰준다
+		me->StopAnimMontage(damageMontage);
+		//bDieMove를 false로 설정
+		bDieMove = false;
 	}
 	else {
 		me->SetActorLocation(fall);

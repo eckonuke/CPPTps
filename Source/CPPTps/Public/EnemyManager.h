@@ -23,22 +23,26 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//멤버변수
+	//시간 변수
 	UPROPERTY(EditAnywhere)
 	float currTime = 0;
 	UPROPERTY(EditAnywhere)
 	float createTime = 0;
+	//에너미 공장
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AEnemy> enemyFactory;
 	UPROPERTY(EditAnywhere)
 	float randMin = 1.0f;
 	UPROPERTY(EditAnywhere)
 	float randMax = 5.0f;
-
+	//적 생성 위치들
 	UPROPERTY(EditAnywhere)
 	TArray<AActor*> spawnPosArray;
 	UPROPERTY(EditAnywhere)
 	int32 spawnIndex = 0;
+	//Enemy 탄창
+	UPROPERTY(EditAnywhere)
+	TArray<class AEnemy*> enemyArray;
 
 public:
 	void FindSpawnPos();
