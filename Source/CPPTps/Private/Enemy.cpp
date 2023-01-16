@@ -73,6 +73,8 @@ void AEnemy::SetActive(bool bActive) {
 	else {
 		//충돌 비활성 설정
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//탄창에 날 다시 넣어줘
+		dieDelegate.ExecuteIfBound(this);
 	}
 	//메쉬를 비활성화
 	GetMesh()->SetActive(bActive);

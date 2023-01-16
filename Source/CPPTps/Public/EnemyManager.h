@@ -46,4 +46,7 @@ public:
 
 public:
 	void FindSpawnPos();
+
+	UFUNCTION()
+		void AddEnemy(class AEnemy* enem);
 };

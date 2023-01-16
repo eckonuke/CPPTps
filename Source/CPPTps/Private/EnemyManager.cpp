@@ -97,3 +97,7 @@ void AEnemyManager::FindSpawnPos() {
 		}
 	}
 }
+
+void AEnemyManager::AddEnemy(class AEnemy* enem) {
+	enemyArray.Add(enem);
+}
