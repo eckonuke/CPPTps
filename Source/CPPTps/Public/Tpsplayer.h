@@ -26,6 +26,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//플레이어 대미지 함수
+	void ReceiveDamage(float damage);
+
 	//Spring Arm Component
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class USpringArmComponent* compSpringArm;
@@ -38,52 +41,23 @@ public:
 	//스나이퍼 총
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* compSniper;
-	//총알 생성자
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class Abullet> bulletFactory;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UUserWidget> sniperUIFactory;
-	UPROPERTY(EditAnywhere)
-	class UUserWidget* sniperUI;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UUserWidget> commonUIFactory;
-	UPROPERTY(EditAnywhere)
-	class UUserWidget* commonUI;
-	UPROPERTY(EditAnywhere)
-	class UParticleSystem* explodeFactory;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UCameraShakeBase> cameraShake;
+	UPROPERTY(EditAnywhere)
+	class UPlayerMove* compPlayerMove;
+	UPROPERTY(EditAnywhere)
+	class UPlayerFire* compPlayerFire;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UMainUI> mainUIFactory;
+	UPROPERTY(EditAnywhere)
+	class UMainUI* mainUI;
 
-	//걷기 속력
-	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-	float walkSpeed = 400;
-	//뛰기 속력
-	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-	float runSpeed = 800;
-	//이동방향
-	FVector direction;
+	//현재 HP
+	UPROPERTY(EditAnywhere)
+	float currHP;
+	//최대 HP
+	UPROPERTY(EditAnywhere)
+	float maxHP = 5;
 
-	bool bFire = false;
-	float cameraDelayTime = 0.5f;
-	float cameraCurrTime = 0;
-
-	//마우스 이동관련
-	float mx = 0;
-	float my = 0;
-
-	void MoveAction();
-	void RotateAction();
-
-	void Turn(float value);
-	void LookUp(float value);
-	void InputHorizontal(float value);
-	void InputVertical(float value);
-	void InputJump();
-	void InputRun();
-	void InputFire();
-	//void InputRifle();
-	//void InputSniper();
-	void ChangeWeapon(bool useSniper);
-	void InputZoom(bool sniperA);
 };

@@ -16,9 +16,14 @@ class CPPTPS_API UEnemyAnim : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+	// Called when the game starts
+	virtual void NativeBeginPlay() override;
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEnemyState Estate;
-	
+	UPROPERTY(EditAnywhere)
+	class AEnemy* enemy;
 	UFUNCTION(BlueprintCallable)
 	void AnimNotify_DieEnd();
 	UFUNCTION(BlueprintCallable)
