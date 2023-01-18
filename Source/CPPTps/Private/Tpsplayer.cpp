@@ -17,6 +17,7 @@
 #include "PlayerMove.h"
 #include "PlayerFire.h"
 #include "MainUI.h"
+#include "Minimap.h"
 
 // Sets default values
 ATpsplayer::ATpsplayer()
@@ -84,7 +85,11 @@ ATpsplayer::ATpsplayer()
 		mainUIFactory = tempUI.Class;
 	}
 
-
+	//MiniMap 클래스 찾아오자
+	ConstructorHelpers::FClassFinder<AMinimap> tempMini(TEXT("Blueprint'/Game/Blueprints/BP_Minimap.BP_Minimap_C'"));
+	if (tempMini.Succeeded()) {
+		miniFactory = tempMini.Class;
+	}
 	////카메라 쉐이크 가져오자
 	//ConstructorHelpers::FClassFinder<UCameraShakeBase> tempShake(TEXT("Blueprint'/Game/Blueprints/BP_CameraShake.BP_CameraShake_C'"));
 	//if (tempShake.Succeeded()) {
@@ -95,11 +100,16 @@ ATpsplayer::ATpsplayer()
 // Called when the game starts or when spawned
 void ATpsplayer::BeginPlay()
 {
-	Super::BeginPlay();
-	currHP = maxHP;
 	//찾아온 클래스를 이용해서 MainUI 만들자
 	mainUI = CreateWidget<UMainUI>(GetWorld(), mainUIFactory);
 	mainUI->AddToViewport();
+	Super::BeginPlay();
+	//현재 HP 초기화
+	currHP = maxHP;
+	prevHP = maxHP;
+
+	//Minimap 생성하자
+	GetWorld()->SpawnActor<AMinimap>(miniFactory, FVector(GetActorLocation().X, GetActorLocation().Y, 600), FRotator(-90, 0, 0));
 }
 
 // Called every frame
@@ -107,6 +117,21 @@ void ATpsplayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	prevHP = FMath::Lerp(prevHP, currHP, DeltaTime);
+	mainUI->UpdateCurrHP(prevHP, maxHP);
+	//만약에 HP UI  갱신해야 한다면
+	//if (bUpdateHP) {
+	//	ratioHP += (DeltaTime*2);
+	//	//목적지에 도달했으면 초기화
+	//	if (ratioHP >= 1) {
+	//		ratioHP = 1;
+	//		bUpdateHP = false;
+	//	}
+
+	//	//HP UI를 갱신하자
+	//	float hp = FMath::Lerp<float>(prevHP, currHP, ratioHP);
+	//	mainUI->UpdateCurrHP(hp, maxHP);
+	//}
 }
 
 // Called to bind functionality to input
@@ -121,10 +146,15 @@ void ATpsplayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 
 void ATpsplayer::ReceiveDamage(float damage) {
+	//이전 HP를 저장한다
+	prevHP = currHP;
+	bUpdateHP = true;
+	ratioHP = 0;
+
 	//현재 HP를 damage 만큼 줄여준다
 	currHP -= damage;
 	//HP UI 갱신
-	mainUI->UpdateCurrHP(currHP, maxHP);
+	//mainUI->UpdateCurrHP(currHP, maxHP);
 
 	//만약에 HP가 0이하라면 게임오버(GameOver 출력)
 	if (currHP <= 0) {

@@ -56,8 +56,20 @@ public:
 	//현재 HP
 	UPROPERTY(EditAnywhere)
 	float currHP;
+	//이전 HP
+	UPROPERTY(EditAnywhere)
+	float prevHP;
 	//최대 HP
 	UPROPERTY(EditAnywhere)
 	float maxHP = 5;
+	//HP UI를 갱신할 수 있니?
+	UPROPERTY(EditAnywhere)
+	bool bUpdateHP = false;
+	//HP UI ratio
+	UPROPERTY(EditAnywhere)
+	float ratioHP = 0.0f;
 
+	//미니맵 블루프린트 클래스
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AMinimap> miniFactory;
 };

@@ -13,6 +13,7 @@
 #include <Camera/CameraComponent.h>
 #include "EnemyFSM.h"
 #include <CollisionQueryParams.h>
+#include "MainUI.h"
 
 UPlayerFire::UPlayerFire() {
 	
@@ -174,6 +175,9 @@ void UPlayerFire::ChangeWeapon(bool useSniper) {
 	}
 	me->compSniper->SetVisibility(useSniper);
 	me->compRifle->SetVisibility(!useSniper);
+
+	//무기 UI도 갱신하자
+	me->mainUI->UpdateWeapon(useSniper);
 }
 
 void UPlayerFire::InputZoom(bool sniperAim) {

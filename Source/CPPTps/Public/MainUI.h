@@ -24,6 +24,14 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UTextBlock* currHP;
 
+	UPROPERTY(EditAnywhere)
+	class UImage* rifle;
+	UPROPERTY(EditAnywhere)
+	class UImage* sniper;
+
 public:
 	void UpdateCurrHP(float curr, float max); 
+
+	void UpdateWeapon(bool useSniper);
+	void SetZOrderWeapon(bool bFocus, class UImage* img);
 };
