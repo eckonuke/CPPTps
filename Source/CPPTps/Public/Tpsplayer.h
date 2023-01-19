@@ -48,10 +48,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UPlayerFire* compPlayerFire;
 
+	//플레이의 기본 UI
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UMainUI> mainUIFactory;
 	UPROPERTY(EditAnywhere)
 	class UMainUI* mainUI;
+	//미니맵 블루프린트 클래스
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AMinimap> miniFactory;
+	//게임오버 블루프린트 클래스
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UGameOverUI> gameOverUIFactory;
+
 
 	//현재 HP
 	UPROPERTY(EditAnywhere)
@@ -61,7 +69,7 @@ public:
 	float prevHP;
 	//최대 HP
 	UPROPERTY(EditAnywhere)
-	float maxHP = 5;
+	float maxHP = 2;
 	//HP UI를 갱신할 수 있니?
 	UPROPERTY(EditAnywhere)
 	bool bUpdateHP = false;
@@ -69,7 +77,4 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ratioHP = 0.0f;
 
-	//미니맵 블루프린트 클래스
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AMinimap> miniFactory;
 };

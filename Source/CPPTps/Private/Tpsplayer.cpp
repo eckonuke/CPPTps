@@ -18,6 +18,7 @@
 #include "PlayerFire.h"
 #include "MainUI.h"
 #include "Minimap.h"
+#include "GameOverUI.h"
 
 // Sets default values
 ATpsplayer::ATpsplayer()
@@ -90,6 +91,13 @@ ATpsplayer::ATpsplayer()
 	if (tempMini.Succeeded()) {
 		miniFactory = tempMini.Class;
 	}
+
+	//GameOverUI 클래스 찾아오자
+	ConstructorHelpers::FClassFinder<UGameOverUI> tempGameOver(TEXT("'/Game/Blueprints/BP_GameOverUI.BP_GameOverUI_C'"));
+	if (tempGameOver.Succeeded()) {
+		gameOverUIFactory = tempGameOver.Class;
+	}
+	
 	////카메라 쉐이크 가져오자
 	//ConstructorHelpers::FClassFinder<UCameraShakeBase> tempShake(TEXT("Blueprint'/Game/Blueprints/BP_CameraShake.BP_CameraShake_C'"));
 	//if (tempShake.Succeeded()) {
@@ -117,7 +125,7 @@ void ATpsplayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	prevHP = FMath::Lerp(prevHP, currHP, DeltaTime);
+	prevHP = FMath::Lerp(prevHP, currHP, DeltaTime*10);
 	mainUI->UpdateCurrHP(prevHP, maxHP);
 	//만약에 HP UI  갱신해야 한다면
 	//if (bUpdateHP) {
@@ -158,7 +166,9 @@ void ATpsplayer::ReceiveDamage(float damage) {
 
 	//만약에 HP가 0이하라면 게임오버(GameOver 출력)
 	if (currHP <= 0) {
-		UE_LOG(LogTemp, Warning, TEXT("Game Over!!!!"));
+		//게임오버 (GameOver UI 보이게 하자)
+		UGameOverUI* ui = CreateWidget<UGameOverUI>(GetWorld(), gameOverUIFactory);
+		ui->AddToViewport();
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Curr HP: %f"), currHP);

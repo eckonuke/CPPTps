@@ -22,7 +22,7 @@ void UMainUI::NativeConstruct() {
 }
 
 void UMainUI::UpdateCurrHP(float curr, float max) {
-	//hp를 0~1 사이ㅗㄹ 표현
+	//hp를 0~1 사이로 표현
 	float hp = curr / max;
 	//수치 UI 갱신
 	FString strHP = FString::Printf(TEXT("%d%%"), (int32)(hp*100));
